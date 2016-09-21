@@ -409,41 +409,6 @@ def gen_second_stage_domain(ip1, ip2, curr_time):
     else:
         print "Domain %s not found in list" % new_domains[0]
         return None
-#=====================================================================================
-#                    Find days in the future with working domains 
-#=====================================================================================
-
-def find_future_domains(deltadays = 12):
-    '''
-        Find future domains 
-    '''
-    currTime = time.localtime()
-    seed1 = 0xF536C78E # Hardcoded in binary
-    seed2 = 0
-    workingDoms = []
-    for i in range(deltadays + 1): # Generate hash lists for next few days, then try to resolve them. If DNS responses contain 2 IPS, save to workingDoms
-        looptime = time.strptime(str(curr_time.tm_year) + "," + str((curr_time.tm_yday + i)%366), "%Y,%j")
-        dayList = gen_domain_list(15, seed1, seed2, looptime)
-        for domain in day_list:
-            try:
-                response = socket.gethostbyname_ex(domain)
-                if len(response[2]) == 2:
-                    working_doms.append({"domain": domain, "response": response, "month": looptime.tm_mon, "day": looptime.tm_mday, "time": looptime})
-            except Exception as e:
-                print `e`
-                continue
-    second_stage_domains = []
-    for each in working_doms:
-        try:
-            if len(each['response'][2]) == 2:
-                ip1 = each['response'][2][0]
-                ip2 = each['response'][2][1]
-                ss_domain = gen_second_stage_domain(ip1, ip2, each['time'])
-                second_stage_domains.append({"firststage": each['domain'], "time": each['time'], "secondstage": ss_domain})
-        except Exception as e:
-            print `e`
-            continue
-    return second_stage_domains
 
 #=====================================================================================
 #                    Find date associated with first stage domain
